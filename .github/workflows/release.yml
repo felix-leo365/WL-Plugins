@@ -29,16 +29,14 @@ jobs:
         with:
           tag_name: latest
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: Release
+      - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: wl-plugins latest
           body: 自动构建，始终为最新版本
           files: target/wl-plugins-1.0.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
