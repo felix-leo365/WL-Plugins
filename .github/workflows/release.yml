@@ -22,7 +22,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # ⚡ Maven 缓存（提速）
       - name: Cache Maven repository
         uses: actions/cache@v4
         with:
@@ -31,26 +30,21 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}-
 
-      # 🔇 安静构建
-      - name: Build with Maven
+      - name: Build with Maven (quiet)
         run: mvn -B -q clean package -DskipTests
 
-      # 🔒 生成 SHA256
       - name: Generate SHA256
         run: |
           cd target
           sha256sum wl-plugins-1.0.jar > wl-plugins-1.0.jar.sha256
 
-      # 🧹 删除旧 latest Release
       - name: Delete old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           tag_name: latest
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 🧾 发布新 Release（自动说明 + 文件）
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
