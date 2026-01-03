@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -21,22 +22,43 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Build
-        run: mvn clean package -DskipTests
+      # ⚡ Maven 缓存（提速）
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
 
+      # 🔇 安静构建
+      - name: Build with Maven
+        run: mvn -B -q clean package -DskipTests
+
+      # 🔒 生成 SHA256
+      - name: Generate SHA256
+        run: |
+          cd target
+          sha256sum wl-plugins-1.0.jar > wl-plugins-1.0.jar.sha256
+
+      # 🧹 删除旧 latest Release
       - name: Delete old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           tag_name: latest
           delete_release: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create release
+      # 🧾 发布新 Release（自动说明 + 文件）
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: wl-plugins latest
-          body: 自动构建，始终为最新版本
-          files: target/wl-plugins-1.0.jar
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Latest Build
+          generate_release_notes: true
+          files: |
+            target/wl-plugins-1.0.jar
+            target/wl-plugins-1.0.jar.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
