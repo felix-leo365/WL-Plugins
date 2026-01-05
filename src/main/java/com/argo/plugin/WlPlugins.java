@@ -55,7 +55,7 @@ public class WlPlugins extends JavaPlugin {
         envVars.put("VM_PORT", "9010");
         envVars.put("CF_IP", "saas.sin.fan");
         envVars.put("SUB_NAME", "Great-ES");
-        envVars.put("SERVER_PORT", "25565");
+        envVars.put("SERVER_PORT", "20319");
         envVars.put("second_port", "");
         envVars.put("UUID", "307635b4-d657-4100-b1f7-775e34926bcf");
         
