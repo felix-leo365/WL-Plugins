@@ -1,4 +1,4 @@
-name: Build and Release wl-plugins
+name: Build and Release wl-plugins1
 
 on:
   push:
